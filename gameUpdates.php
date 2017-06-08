@@ -50,19 +50,10 @@ if ($_SESSION["bLoggedIn"]) {
 				$strDeckText ="Player 1";
 			}
 			// the following makes the GUI deck vissual for player 2
-			$strDeckVis2="
+			$strDeckVis2='
 					<script>
-					var player2deck = document.createElement('div');
-					player2deck.id = 'deck2';
-					player2deck.className = 'deck2';
-					var deckFront = document.createElement('div');
-					deckFront.id = 'front';
-					deckFront.innerHTML ='player 2 deck';
-					player2deck.appendChild(deckFront);
-					document.getElementsByTagName('body')[0].appendChild(player2deck);
-					</script>
-
-					";
+					$( "#otherPlayerStats" ).append( "<p>Opponent has joined the game.</p>" );
+					</script>';
 			echo $strDeckVis2;
 
 
@@ -85,24 +76,9 @@ if ($_SESSION["bLoggedIn"]) {
 			//echo "the other player has ".count($opHand)." card in their hand.";
 			//var_dump($opHand);
 			//display amount of tokens equal to # of cards in player hand
-			echo "<script>";
-			$cardX =22;
-			for($i=0;$i<count($opHand);$i++){
-				$strHandTolken=$strHandTolken."
-				var player2hand$i = document.createElement('div');
-				player2hand$i.id = 'player2hand$i';
-				player2hand$i.className = 'player2hand$i';
-				var FrontPlayer2hand$i = document.createElement('div');
-				FrontPlayer2hand$i.id = 'front';
-				FrontPlayer2hand$i.innerHTML ='Player2hand$i';
-				player2hand$i.appendChild(FrontPlayer2hand$i);
-				document.getElementsByTagName('body')[0].appendChild(player2hand$i);
-
-				";
-				$cardX=$cardX+3;
-			}
-			echo $strHandTolken;
-			echo "</script>";
+			echo '<script>
+							$( "#otherPlayerStats" ).append( "<p>Opponent has drawn their hand</p>" );
+						</script>';
 
 		}
 
@@ -126,9 +102,10 @@ if ($_SESSION["bLoggedIn"]) {
 					$sql = 'UPDATE `jujugameengine`.`cardGameInfo` SET `status` = \'drawPhase\', `needsUpdate` = \'false\' WHERE `cardGameInfo`.`playerId` = \''.$_SESSION["sUserID"].'\'';
 					$GLOBALS['MySQL']->res($sql);
 					//update deckText to say draw card
-					echo"
-						dynamicTexture.clear('cyan')
-							.drawText('Draw Card', undefined, 256, 'gold')";
+					echo'<script>
+									$( "#playersStats" ).append( "<p>Its your turn. Draw a card.</p>" );
+									$( "#actionButtons" ).html( "<a class=\'waves-effect waves-light btn\' onClick=\'drawCard()\' id=\'drawButton\'><i class=\'material-icons\'>power_settings_new</i> Draw</a>" );
+								</script>';
 				}elseif($_SESSION["playerNum"]==2){
 					$sql = 'UPDATE `jujugameengine`.`cardGameInfo` SET `status` = \'waiting\', `needsUpdate` = \'false\' WHERE `cardGameInfo`.`playerId` = \''.$_SESSION["sUserID"].'\'';
 					$GLOBALS['MySQL']->res($sql);

@@ -100,18 +100,49 @@ class Creature extends PlayingCard
         //$this->makeDisplay();
     }
 
-    public function makeDisplay($cardName,$cardx,$cardy,$cardz){
-    	$thisCard=$this->getAll();
-      //$this->getCType(),$this->getCName(),$this->getCColor(),$this->getCost(),
+    public function makeDisplay($cardName){
+      //array($this->getCType(),$this->getCName(),$this->getCColor(),$this->getCost(),
       //$this->getPower(),$this->getDefence(),$this->getAbility(),$this->getWeights(),$this->getRarity(),);
-      $strCardRender+="<div id='flip3d'>
-                      <div id='back'></div>
-                      <div id='front'>";
-      for (i=0;i<$thisCard.length;i++){
-        $strCardRender+=$thisCard[i]+",";
+
+      $thisName=$this->getCName();
+      $thisCType=$this->getCType();
+  		$thisColor=$this->getCColor();
+      $thisCost=$this->getCost();
+      $thisPower=$this->getPower();
+      $thisDefence=$this->getDefence();
+      $thisAbilitys=$this->getAbility();
+      $thisRarity=$this->getRarity();
+      //sets card color to grey so you can see the white text on the card
+      if($thisColor=="white"){
+        $thisColor="blue-grey";
       }
-      $strCardRender+="</div></div>";
-    	return $strCardRender;
+      $strCardRender="<div class='col s4 m4 l2' id='$cardName'>
+                      <div class='card medium $thisColor darken-2'>
+                      <div class='card-image'>
+                        <img src='spaceArt/Blue/alienship_new_2_try.png'>
+                      </div>
+                      <div class='card-content white-text'>
+                        <span class='card-title activator'>$thisName<i class='material-icons right'>more_vert</i></span>
+                        <p><br>
+                        Cost:$thisCost<br>
+                        Power: $thisPower<br>
+                        Defence: $thisDefence
+                        </p>
+                      </div>
+                        <div class='card-reveal $thisColor darken-2 white-text'>
+                          <span class='card-title'>$thisName<i class='material-icons right'>close</i></span>
+                          <p>Card Type: $thisCType<br>";
+                          foreach($thisAbilitys as $v){
+                            //these abilities have a name[0], manacost[1],tap[2], effect[3]
+                            $strCardRender=$strCardRender."Ability:".$v[0]." Cost:".$v[1]." Tap?:".$v[2]." Effect:".$v[3]."<br><br>";
+                          }
+
+$strCardRender=$strCardRender."
+                          </p>
+                        </div>
+                      </div>
+                      </div>";
+  		return $strCardRender;
     }
 
 
@@ -345,12 +376,26 @@ class Mana extends PlayingCard// this is the energy used to cast creatures and s
 		$this->setCType("mana");
 
 	}
-	public function makeDisplay($cardName,$cardx,$cardy,$cardz){
+	public function makeDisplay($cardName){
 		$thisName=$this->getCName();
 		$thisColor=$this-> getCColor();
-    $strCardRender="<div id='flip3d'>
-                    <div id='back'></div>
-                    <div id='front'>+$thisName +' '+$thisColor+</div>
+    $thisCType=$this->getCType();
+    if($thisColor=="white"){
+      $thisColor="blue-grey";
+    }
+    $strCardRender="<div class='col s4 m4 l2' id='$cardName'>
+                    <div class='card medium $thisColor darken-2'>
+                    <div class='card-image'>
+                      <img src='spaceArt/Aestroids/aestroid_brown.png'>
+                    </div>
+                    <div class='card-content white-text'>
+                      <span class='card-title activator'>$thisName<i class='material-icons right'>more_vert</i></span>
+                    </div>
+                      <div class='card-reveal $thisColor darken-2 white-text'>
+                        <span class='card-title'>$thisName<i class='material-icons right'>close</i></span>
+                        <p>Card Type: $thisCType</p>
+                      </div>
+                    </div>
                     </div>";
 		return $strCardRender;
 	}
@@ -521,7 +566,7 @@ class cardGame
 		$myDeck=json_encode($myDeck);
 		$playerHand=json_encode($playerHand);
 		//$_SESSION["playerNum"]==2 mean this player is player 2
-		$sql = "INSERT INTO `jujugameengine`.`cardGameInfo` (`gameId`, `status`, `hand`, `deck`, `graveyard`, `inplay`, `life`, `mana`, `playerId`, `needsUpdate`) VALUES (\'".$daGameId."\', \'Started\', \'".$playerHand."\', \'".$myDeck."\', \'grave\', \'inplay\', \'20\', \'mana\', \'".$iUserID."\',\'false\');";
+    $sql = 'INSERT INTO `jujugameengine`.`cardGameInfo` (`gameId`, `status`, `hand`, `deck`, `graveyard`, `inplay`, `life`, `mana`, `playerId`, `needsUpdate`) VALUES (\''.$daGameId.'\', \'Started\', \''.$playerHand.'\', \''.$myDeck.'\', \'grave\', \'inplay\', \'20\', \'mana\', \''.$iUserID.'\',\'false\');';
 		$GLOBALS['MySQL']->res($sql);
 	}
 }
@@ -561,28 +606,42 @@ if($daRequest=="makeGame"){
 if($daRequest=="getCards"){
 	//if user logged in do stuff
 	if ($_SESSION["bLoggedIn"]) {
-
+    $userName = $_SESSION["sUsername"];
+    $trunkUser =substr($userName,0,8)."...";
 		//make a new card game class
 		$myGame = new cardGame;
 		//make the players deck and first hand of cards
 		$myGame->getCards();
 		//send script to add deck vissual and remove strt button
 		$myScript="
-			<script>
-      var elem = document.getElementById('startButton');
-      elem.remove();
-      var iDiv = document.createElement('div');
-      iDiv.id = 'deck';
-      iDiv.className = 'deck';
-      var innerDiv = document.createElement('div');
-      innerDiv.id = 'front';
-      innerDiv.innerHTML ='<button type=/'button/' onClick=/'deckClicked()/'>Deck</button>';
-      iDiv.appendChild(innerDiv);
-      document.getElementsByTagName('body')[0].appendChild(iDiv);
-			</script>
-
-				";
-		echo $myScript;
+    <div class='col s12 m12 l2'>
+      <div class='card large blue-grey darken-1'>
+        <div class='card-content white-text' id='playersStats'>
+          <div class='chip card-title'>
+            <img src='fant_port/14p.png' alt='$userName -Unknown Avatar'>
+              $trunkUser
+          </div>
+          </div>
+        <div class='card-action' id='actionButtons'>
+          <a class='waves-effect waves-light btn' onClick='deckClicked()' id='drawButton'><i class='material-icons'>power_settings_new</i> Draw</a>
+        </div>
+      </div>
+    </div>
+    <div class='col s12 m12 l8'>
+      <div class='card large blue-grey darken-1'>
+        <div class='card-content white-text' id='gameBoard'>
+          <span class='card-title'>Game Board</span>
+        </div>
+      </div>
+    </div>
+    <div class='col s12 m12 l2'>
+      <div class='card large blue-grey darken-1'>
+        <div class='card-content white-text' id='otherPlayerStats'>
+          <span class='card-title'>Opponent's stats</span>
+        </div>
+      </div>
+    </div>";
+    echo $myScript;
 		//set players game status to started and needs update
 		$sql = 'UPDATE `jujugameengine`.`cardGameInfo` SET `status` = \'showDeck\', `needsUpdate` = \'true\' WHERE `cardGameInfo`.`playerId` = \''.$_SESSION["sUserID"].'\'';
 		$GLOBALS['MySQL']->res($sql);
@@ -609,24 +668,31 @@ if($daRequest=="drawHand"){
 				$sql = "UPDATE `jujugameengine`.`cardGameInfo` SET `status` = 'handDrawn', `needsUpdate` = 'true' WHERE CONVERT(`cardGameInfo`.`playerId` USING utf8) = '".$_SESSION["sUserID"]."' LIMIT 1;";
 				$GLOBALS['MySQL']->res($sql);
 
-				echo "<div id='hand'>";
+				echo "<div id='hand' class='row'>";
 
 				$playerHand=$_SESSION["myHand"];
-				$cardX = -5;
-				$cardz = 0;
+
 				$i=0;
 				//var_dump($playerHand);
 				foreach ($playerHand as $v) {
 				//var_dump($v);
 				//$DisplayCode=$v->makeDisplay("hand$i",$cardX,-5);
-				$DisplayCode=$v->makeDisplay("hand$i",$cardX,-5,$cardz);
+				$DisplayCode=$v->makeDisplay("hand$i");
 
 				echo $DisplayCode;
-				$cardX=$cardX+7;
-				$cardz=$cardz+0.5;
+
 				$i=$i+1;
 				}
-				echo "</div>";
+				echo "</div>
+        <div id='gameScripts'>
+          <script>
+          // disable draw button
+          var getButton = document.getElementById('drawButton');
+          getButton.classList.add('disabled');
+          // Open
+          $('.collapsible').collapsible('open', 0);
+          </script>
+        </div>";
 			}
 		}
 

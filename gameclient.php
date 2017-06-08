@@ -14,37 +14,24 @@ if ($_SESSION["bLoggedIn"]) {
 }
 ?>
 <html>
-    <head>
-		<title>Game Client</title>
-		<style>
-		body {
-		    background-color: #d0e4fe;
-		    margin: 0;
-		}
+<head>
+	<title>Game Client</title>
+	<!--Import Google Icon Font-->
+	<link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<!--Import materialize.css-->
+	<link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
 
-		h1 {
-		    color: orange;
-		    text-align: center;
-		}
-
-		p {
-		    font-family: "Times New Roman";
-		    font-size: 20px;
-		}
-
-		.clickables
-		{
-		    cursor: pointer;
-		}
-
-		canvas { width: 100%; height: 100% }
-		</style>
-
-	</head>
+	<!--Let browser know website is optimized for mobile-->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
 	<body>
 		<script src='js/jquery-2.1.3.min.js'></script>
+		<script type="text/javascript" src="js/materialize.min.js"></script>
 
 		<script>
+		$(document).ready(function(){
+    $('.collapsible').collapsible();
+  });
 //****************************************************************************************************************
 //this loop will updates what the other player is doing
 //****************************************************************************************************************
@@ -67,15 +54,6 @@ if ($_SESSION["bLoggedIn"]) {
 			function myStopFunction() {
 			    clearInterval(myVar);
 			}
-
-//*********************************************************************************************************
-//this is the code for the start button
-//*********************************************************************************************************
-
-var startButton = document.createElement('div');
-startButton.id = 'startButton';
-startButton.innerHTML="<button type='button' onClick='startClicked()'>Start</button>";
-document.getElementsByTagName('body')[0].appendChild(startButton);
 
 //***********************************************************************************************
 // if the user clicked the start button
@@ -107,15 +85,56 @@ function deckClicked(){
 				    	//alert("Data: " + data + "\nStatus: " + status);
 				        if(status == "success"){
 				        	//$.getScript("cardgameclasses.php");
-				        	// this script will remove the start button and add the deck vissual
-				        	$("#GameCommand").html(data);
+				        	$("#playerHand").html(data);
+				        }
+				    });
+}
+
+//*******************************************************************************************************
+// the user clicked the deck
+//*******************************************************************************************************
+function drawCard(){
+			$.post("cardgameclasses.php",
+				    {
+						gameRequest: "drawCard",
+				    },
+				    function(data, status){
+				    	//alert("Data: " + data + "\nStatus: " + status);
+				        if(status == "success"){
+				        	//$.getScript("cardgameclasses.php");
+				        	$("#playerHand").append(data);
 				        }
 				    });
 }
 //*********************************************************************************************************
+</script>
+	<ul class="collapsible" data-collapsible="accordion">
+    <li>
+      <div class="collapsible-header"><i class="material-icons">expand_more</i>Your Hand</div>
+      <div class="collapsible-body" id="playerHand"><span>Lorem ipsum dolor sit amet.</span></div>
+    </li>
+    <li>
+      <div class="collapsible-header"><i class="material-icons">expand_more</i>Second</div>
+      <div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
+    </li>
+    <li>
+      <div class="collapsible-header"><i class="material-icons">expand_more</i>Third</div>
+      <div class="collapsible-body"><span>Lorem ipsum dolor sit amet.</span></div>
+    </li>
+  </ul>
+	<div id="mainGame"></div>
+	<div id="playerUpdates"></div>
+	<script>
+	//*********************************************************************************************************
+	//this is the code for the start button
+	//*********************************************************************************************************
 
-		</script>
-<div id="GameCommand"></div>
-<div id="playerUpdates"></div>
+	var startButton = document.createElement('div');
+	startButton.id = 'GameCommand';
+	startButton.classList.add('row');
+	startButton.innerHTML="<a class='waves-effect waves-light btn' onClick='startClicked()'><i class='material-icons'>play_arrow</i> Start</a>"
+	document.getElementById('mainGame').appendChild(startButton);
+
+	</script>
 	</body>
 </html>
